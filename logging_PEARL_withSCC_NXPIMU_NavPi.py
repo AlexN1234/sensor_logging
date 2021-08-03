@@ -536,9 +536,12 @@ def write_to_csv(last_print,loopcount):
     else:
         wind_moos_data = "1," + wind_moos_data
 
-    scc_moos_string = "$PLSCC" + scc_moos_data + "*"
-    veml_moos_string = "$PLLUX" + veml_moos_data + "*"
-    wind_moos_string = "$PLWND" + wind_moos_data + "*"
+    scc_moos_string = "$PLSCC," + scc_moos_data + "*"
+    veml_moos_string = "$PLLUX," + veml_moos_data + "*"
+    wind_moos_string = "$PLWND," + wind_moos_data + "*"
+    moos_serial.write(scc_moos_string.encode())
+    moos_serial.write(veml_moos_string.encode())
+    moos_serial.write(wind_moos_string.encode())
     
     # the a is for append, if w for write is used then it overwrites the file
     with open(logfile, mode='a') as sensor_readings:
@@ -570,9 +573,6 @@ while True:
     gps.update()
     written = write_to_csv(last_print,loopcount)
     loopcount = written[1]
-    moos_serial.write(scc_moos_string.encode())
-    moos_serial.write(veml_moos_string.encode())
-    moos_serial.write(wind_moos_string.encode())
     #log data and send to navigation RPi every 1 second
     time.sleep(1)
     loopcount += 1
