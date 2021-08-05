@@ -10,6 +10,8 @@ import adafruit_sht31d, adafruit_lps35hw, adafruit_veml7700
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from pymodbus.client.sync import ModbusSerialClient as ModbusClient
+from atlas_i2c import sensors
+from atlas_i2c import commands
 
 ## INITIALIZE SENSORS
 # SCC reading initialization
@@ -147,6 +149,33 @@ try:
 except:
     pass
 
+# PH-EZO Sensor initialization
+ph_flag = 0
+try:
+    ph_sensor = sensors.Sensor('pH', 99)
+    ph_sensor.connect()
+    ph_flag = 1
+except:
+    pass
+
+# DO-EZO Sensor initialization
+do_flag = 0
+try:
+    do_sensor = sensors.Sensor('DO', 97)
+    do_sensor.connect()
+    do_flag = 1
+except:
+    pass
+
+# EC-EZO Sensor initialization
+ec_flag = 0
+try:
+    ec_sensor = sensors.Sensor('EC', 100)
+    ec_sensor.connect()
+    ec_flag = 1
+except:
+    pass
+
 ## GET FILENAME TO WRITE TO
 writing_path = '/home/pi/SensorLog/writing/'
 completed_path = '/home/pi/SensorLog/to_upload/'
@@ -217,7 +246,8 @@ with open(logfile, mode='w') as sensor_readings:
                'Battery Power L (W)', 'Battery Power H (W)',
                'Load Voltage (V)', 'Load Current (A)', 'Load Power L (W)',
                'Load Power H (W)', 'Battery SOC (%)',
-               'Battery Temperature (C)', 'Device Temperature (C)']
+               'Battery Temperature (C)', 'Device Temperature (C)',
+               'Water pH', 'Water Dissolved Oxygen (mg/L)', 'Water Electrical Conductivity (uS)']
 
     write_to_log = sensor_write.writerow(headers)
     print(headers)
@@ -343,6 +373,36 @@ def get_ds18data():
     else:
         ds18_data ="No DS18B20"
     return(ds18_data)
+
+def get_phdata():
+    if ph_flag == 1:
+        try:
+            ph_data = "{:.02f}".format(ph_sensor.query(commands.Read).data)
+        except:
+            ph_data = "No EZO-PH,No EZO-PH"
+    else:
+        ph_data = "No EZO-PH,No EZO-PH"
+    return(ph_data)
+
+def get_dodata():
+    if do_flag == 1:
+        try:
+            do_data = "{:.02f}".format(do_sensor.query(commands.Read).data)
+        except:
+            do_data = "No EZO-DO,No EZO-DO"
+    else:
+        do_data = "No EZO-DO,No EZO-DO"
+    return(do_data)
+
+def get_ecdata():
+    if ec_flag == 1:
+        try:
+            ec_data = "{:.02f}".format(ec_sensor.query(commands.Read).data)
+        except:
+            ec_data = "No EZO-PH,No EZO-PH"
+    else:
+        ec_data = "No EZO-PH,No EZO-PH"
+    return(ec_data)
     
 # WRITE DATA
 def write_to_csv(last_print,loopcount):
@@ -528,7 +588,10 @@ def write_to_csv(last_print,loopcount):
                        sht_data[0],
                        get_winddata(),
                        get_ds18data(),
-                       scc_datastring]
+                       scc_datastring,
+                       get_phdata(),
+                       get_dodata(),
+                       get_ecdata(),]
         loopcount = sht_data[1]
         print(data_string)
         write_to_log = sensor_write.writerow(data_string)
