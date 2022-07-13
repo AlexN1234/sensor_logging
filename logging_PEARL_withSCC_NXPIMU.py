@@ -176,6 +176,15 @@ try:
 except:
     pass
 
+## Humidity-EZO Sensor initialization
+hmid_flag = 0
+try:
+    hmid_sensor = sensors.Sensor('humidity', 111)
+    hmid_sensor.connect()
+    hmid_flag = 1
+except:
+    pass
+
 ## GET FILENAME TO WRITE TO
 writing_path = '/home/pi/SensorLog/writing/'
 completed_path = '/home/pi/SensorLog/to_upload/'
@@ -377,33 +386,44 @@ def get_ds18data():
 def get_phdata():
     if ph_flag == 1:
         try:
-            ph_data = "{:.02f}".format(ph_sensor.query(commands.Read).data)
+            ph_data = "{:.02f}".format(float(ph_sensor.query(commands.Read).data.decode("utf-8")))
         except:
-            ph_data = "No EZO-PH,No EZO-PH"
+            ph_data = "No EZO-PH"
     else:
-        ph_data = "No EZO-PH,No EZO-PH"
+        ph_data = "No EZO-PH"
     return(ph_data)
 
 def get_dodata():
     if do_flag == 1:
         try:
-            do_data = "{:.02f}".format(do_sensor.query(commands.Read).data)
+            do_data = "{:.02f}".format(float(do_sensor.query(commands.Read).data.decode("utf-8")))
         except:
-            do_data = "No EZO-DO,No EZO-DO"
+            do_data = "No EZO-DO"
     else:
-        do_data = "No EZO-DO,No EZO-DO"
+        do_data = "No EZO-DO"
     return(do_data)
 
 def get_ecdata():
     if ec_flag == 1:
         try:
-            ec_data = "{:.02f}".format(ec_sensor.query(commands.Read).data)
+            ec_data = "{:.02f}".format(float(ec_sensor.query(commands.Read).data.decode("utf-8")))
         except:
-            ec_data = "No EZO-PH,No EZO-PH"
+            ec_data = "No EZO-EC"
     else:
-        ec_data = "No EZO-PH,No EZO-PH"
+        ec_data = "No EZO-EC"
     return(ec_data)
-    
+
+def get_atlasHumidData():
+    if hmid_flag == 1:
+        try:
+            hmid_data = "{:.02f}".format(float(hmid_sensor.query(commands.Read).data.decode("utf-8")))
+        except:
+            hmid_data = "No EZO-Humidity"
+    else:
+        hmid_data = "No EZO-Humidity"
+    return hmid_data
+
+
 # WRITE DATA
 def write_to_csv(last_print,loopcount):
     # get GPS and SCC data from serial - can't be done with subfunction
@@ -591,7 +611,8 @@ def write_to_csv(last_print,loopcount):
                        scc_datastring,
                        get_phdata(),
                        get_dodata(),
-                       get_ecdata(),]
+                       get_ecdata(),
+                       get_atlasHumidData()]
         loopcount = sht_data[1]
         print(data_string)
         write_to_log = sensor_write.writerow(data_string)
