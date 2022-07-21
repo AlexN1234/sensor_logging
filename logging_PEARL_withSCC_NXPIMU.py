@@ -256,7 +256,7 @@ with open(logfile, mode='w') as sensor_readings:
                'Load Voltage (V)', 'Load Current (A)', 'Load Power L (W)',
                'Load Power H (W)', 'Battery SOC (%)',
                'Battery Temperature (C)', 'Device Temperature (C)',
-               'Water pH', 'Water Dissolved Oxygen (mg/L)', 'Water Electrical Conductivity (uS)']
+               'Water pH', 'Water Dissolved Oxygen (mg/L)', 'Water Electrical Conductivity (uS)', 'Atlas Humidity (% relative humidity)']
 
     write_to_log = sensor_write.writerow(headers)
     print(headers)
